@@ -1,4 +1,5 @@
 import express from 'express';
+import uuidv4 from 'uuid/v4';
 
 import auth from '../tools/auth';
 import Room from '../db/Room';
@@ -30,8 +31,11 @@ roomRouter.route('/playerEnter').post((req, res) => {
     // Verify the room has capacity for a new player,
 
 
-    // Create new user.
-    const newPlayer = { name: 'dave', token: 'd4v3zT0k3N' };
+    // Create new user and add them to the specified room.
+    const newPlayer = { id: uuidv4(), name: '' };
+    const token = auth.createToken(newPlayer);
+    newPlayer.token = token;
+
     Room.findOneAndUpdate({ id }, { $push: { players: newPlayer } }, (err, doc, result) => {
         if (err) {
             console.log(err);

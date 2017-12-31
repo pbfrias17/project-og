@@ -8,6 +8,10 @@ var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
 
+var _v = require('uuid/v4');
+
+var _v2 = _interopRequireDefault(_v);
+
 var _auth = require('../tools/auth');
 
 var _auth2 = _interopRequireDefault(_auth);
@@ -47,9 +51,12 @@ roomRouter.route('/playerEnter').post(function (req, res) {
     // Verify the room has capacity for a new player,
 
 
-    // Create new user.
+    // Create new user and add them to the specified room.
 
-    var newPlayer = { name: 'dave', token: 'd4v3zT0k3N' };
+    var newPlayer = { id: (0, _v2.default)(), name: '' };
+    var token = _auth2.default.createToken(newPlayer);
+    newPlayer.token = token;
+
     _Room2.default.findOneAndUpdate({ id: id }, { $push: { players: newPlayer } }, function (err, doc, result) {
         if (err) {
             console.log(err);

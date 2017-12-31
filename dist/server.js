@@ -45,9 +45,6 @@ app.use((0, _cors2.default)());
 app.use(_bodyParser2.default.urlencoded({ extended: true }));
 app.use(_bodyParser2.default.json());
 
-// All requests to rc/{roomId} must be authenticated.
-app.use('/rc/:roomId', _auth2.default.authenticateRequest);
-
 app.use('/room', _roomRouter2.default);
 
 app.listen(port, function () {
