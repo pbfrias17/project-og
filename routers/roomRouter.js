@@ -9,20 +9,38 @@ const roomRouter = express.Router();
 
 roomRouter.route('/open').post((req, res) => {
     const { id } = req.headers;
-
-    DBHelpers.openRoom(id)
+    const newRoom = { id };
+    const token = auth.createToken(newRoom);
+    newRoom.token = token;
+    console.log(newRoom);
+    Room.create(newRoom)
         .then((data) => {
-            console.log(data);
             res.status(200).send('ok');
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).send('oh no');
+        }).catch((err) => {
+            res.status(500).send({ error: err });
         });
 });
 
 roomRouter.route('/close').post((req, res) => {
-    // 
+    // Verify the request is coming from an authenticated source.
+    const token = req.headers['x-access-token'];
+    const id = req.headers['id'];
+
+    auth.verifyToken(token)
+        .then((decoded) => {
+            if (id === decoded.id) {
+                Room.remove({ id })
+                .then((result) => {
+                    res.status(200).send({ auth: true });
+                }).catch((err) => {
+                    res.status(500).send({ auth: true, error: 'Could not close room.' });
+                });
+            } else {
+                res.status(400).send({ auth: false, error: 'Not authorized to close this room' });
+            }
+        }).catch((err) => {
+            res.status(401).send({ auth: false, error: 'Access token could not be authenticated.' });
+        });
 });
 
 roomRouter.route('/playerEnter').post((req, res) => {

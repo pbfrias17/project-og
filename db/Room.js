@@ -3,6 +3,7 @@ import Mongoose from 'mongoose';
 const Schema = Mongoose.Schema;
 const roomSchema = new Schema({
     id: { type: String, required: true },
+    token: { type: String, required: true},
     players: { type: Object },
     passcode: '',
     game: '',

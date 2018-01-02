@@ -31,18 +31,35 @@ var roomRouter = _express2.default.Router();
 roomRouter.route('/open').post(function (req, res) {
     var id = req.headers.id;
 
-
-    _helpers2.default.openRoom(id).then(function (data) {
-        console.log(data);
+    var newRoom = { id: id };
+    var token = _auth2.default.createToken(newRoom);
+    newRoom.token = token;
+    console.log(newRoom);
+    _Room2.default.create(newRoom).then(function (data) {
         res.status(200).send('ok');
     }).catch(function (err) {
-        console.log(err);
-        res.status(500).send('oh no');
+        res.status(500).send({ error: err });
     });
 });
 
 roomRouter.route('/close').post(function (req, res) {
-    // 
+    // Verify the request is coming from an authenticated source.
+    var token = req.headers['x-access-token'];
+    var id = req.headers['id'];
+
+    _auth2.default.verifyToken(token).then(function (decoded) {
+        if (id === decoded.id) {
+            _Room2.default.remove({ id: id }).then(function (result) {
+                res.status(200).send({ auth: true });
+            }).catch(function (err) {
+                res.status(500).send({ auth: true, error: 'Could not close room.' });
+            });
+        } else {
+            res.status(400).send({ auth: false, error: 'Not authorized to close this room' });
+        }
+    }).catch(function (err) {
+        res.status(401).send({ auth: false, error: 'Access token could not be authenticated.' });
+    });
 });
 
 roomRouter.route('/playerEnter').post(function (req, res) {

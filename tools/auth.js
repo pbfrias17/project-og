@@ -13,36 +13,19 @@ var compareHash = (value, hashedValue) => {
 
 var createToken = (payload) => {
     return jwt.sign(
-               payload, 
-               config.secret, 
-               { expiresIn: 18000 /* 5 hours */ }
+        payload, 
+        config.secret, 
+        { expiresIn: 18000 /* 5 hours */ }
     );
 };
 
-var verifyToken = (token, callback) => {
-    jwt.verify(token, config.secret, (err, decoded) => {
-        if (err)
-            console.log(err);
-
-        callback(decoded);
-    });
-};
-
-// Middlewares
-var authenticateRequest = (req, res, next) => {
-    var token = req.headers['x-access-token']; //default http access token handle
-    if (!token)
-        return res.status(401)
-                  .send({ auth: false, error: 'No access token provided.' });
-
-    verifyToken(token, (decoded) => {
-        if (decoded) {
-            res.locals.decoded = decoded;
-            return next();
-        } else {
-            return res.status(401)
-                      .send({ auth: false, error: 'Provided token could not be authorized.' });
-        }
+var verifyToken = (token) => {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, config.secret, (err, decoded) => {
+            if (err) return reject(err);
+            
+            resolve(decoded);
+        });
     });
 };
 
@@ -51,5 +34,4 @@ module.exports = {
     compareHash,
     createToken,
     verifyToken,
-    authenticateRequest
 };

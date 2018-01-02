@@ -13,6 +13,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Schema = _mongoose2.default.Schema;
 var roomSchema = new Schema({
     id: { type: String, required: true },
+    token: { type: String, required: true },
     players: { type: Object },
     passcode: '',
     game: ''
