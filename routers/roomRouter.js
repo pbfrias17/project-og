@@ -2,20 +2,27 @@ import express from 'express';
 import uuidv4 from 'uuid/v4';
 
 import auth from '../tools/auth';
+import { createRoomId } from '../tools/roomHelper';
 import Room from '../db/Room';
 import DBHelpers from '../db/helpers';
 
 const roomRouter = express.Router();
 
 roomRouter.route('/open').post((req, res) => {
-    const roomId = req.headers['room-id'];
+    let roomId = req.headers['room-id'];
+
+    // Create a 'unique' roomId if none was provided.
+    if (!roomId) {
+        roomId = createRoomId();
+    }
+    
     const newRoom = { id: roomId };
     const token = auth.createToken(newRoom);
     newRoom.token = token;
 
     Room.create(newRoom)
         .then((data) => {
-            res.status(200).send({ success: true, message: 'Room has been opened.' });
+            res.status(200).send({ success: true, message: 'Room has been opened.', roomId, token });
         }).catch((error) => {
             res.status(500).send({ error });
         });
