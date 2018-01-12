@@ -22,7 +22,7 @@ roomRouter.route('/open').post((req, res) => {
 
     Room.create(newRoom)
         .then((data) => {
-            res.status(200).send({ success: true, message: 'Room has been opened.', roomId, token });
+            res.status(200).json({ success: true, message: 'Room has been opened.', roomId, token });
         }).catch((error) => {
             res.status(500).send({ error });
         });
