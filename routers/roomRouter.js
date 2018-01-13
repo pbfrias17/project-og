@@ -22,7 +22,7 @@ roomRouter.route('/open').post((req, res) => {
 
     Room.create(newRoom)
         .then((data) => {
-            res.status(200).json({ success: true, message: 'Room has been opened.', roomId, token });
+            res.status(200).send({ success: true, message: 'Room has been opened.', roomId, token });
         }).catch((error) => {
             res.status(500).send({ error });
         });
@@ -73,7 +73,12 @@ roomRouter.route('/playerEnter').post((req, res) => {
     Room.findOneAndUpdate(conditions, query, options)
         .then((result) => {
             if (result) {
-                res.status(200).send({ success: true, message: 'Player entered the room.' });
+                let { _id, id } = result;
+                res.status(200).send({ 
+                    success: true, 
+                    player: newPlayer,
+                    room: { _id, id }
+                });
             } else {
                 res.status(200).send({ success: false, message: 'That room could not be found.' });
             }
